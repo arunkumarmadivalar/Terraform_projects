@@ -4,6 +4,7 @@
 #2 Public Subnets
 #Internet Gateway
 #Route Table
+#route table assoication
 #Security Group (SSH + HTTP)
 #2 EC2 Instances in different subnets
 
