@@ -1,0 +1,90 @@
+#Create 5 EC2 instances:
+
+#NAME: web-1, web-2, app-1, app-2, db-1
+
+#Use: for_each, Variables, Tags, Outputs
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+variable "region" {
+  default = "us-east-1"
+}
+
+variable "instance_type" {
+  default = "t3.micro"
+}
+
+variable "ami_id" {
+  description = "Amazon Linux 2023 AMI"
+  default     = "ami-0c101f26f147fa7fd"
+}
+
+variable "instance_names" {
+  type = set(string)
+
+  default = [
+    "web-1",
+    "web-2",
+    "app-1",
+    "app-2",
+    "db-1"
+  ]
+}
+
+
+resource "aws_instance" "servers" {
+  for_each = var.instance_names
+
+  ami           = var.ami_id
+  instance_type = var.instance_type
+
+  tags = {
+    Name        = each.key
+    Environment = "Dev"
+    Project     = "Terraform-Practice"
+  }
+}
+
+output "instance_ids" {
+  value = {
+    for name, instance in aws_instance.servers :
+    name => instance.id
+  }
+}
+
+output "public_ips" {
+  value = {
+    for name, instance in aws_instance.servers :
+    name => instance.public_ip
+  }
+}
+
+
+output "instance_names" {
+  value = keys(aws_instance.servers)
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs:
+
+instance_ids = {
+  "app-1" = "i-0710baad472520bb8"
+  "app-2" = "i-04d1fdae6d0b9c1cf"
+  "db-1" = "i-077deb5ff8c29e68b"
+  "web-1" = "i-0173e3fcf508d4344"
+  "web-2" = "i-03c9b0790ed4f5d18"
+}
+instance_names = [
+  "app-1",
+  "app-2",
+  "db-1",
+  "web-1",
+  "web-2",
+]
+public_ips = {
+  "app-1" = "34.230.84.99"
+  "app-2" = "18.208.212.158"
+  "db-1" = "54.234.253.63"
+  "web-1" = "54.234.50.109"
+  "web-2" = "107.23.152.99"
+}
